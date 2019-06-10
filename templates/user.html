@@ -1,0 +1,621 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    {% include 'head.html' %}
+    <style>
+        #home_page{
+            background: url({% static 'img/backgroud.jpg' %}) no-repeat;
+            background-size: cover;
+            width: 100%;
+            height: 100%;
+
+        }
+        ul{
+            width: 50%;
+            position: fixed;
+            left: 25%;
+            top: 3%;
+            z-index: 2;
+        }
+
+        .device_list{
+             position: absolute;
+             width: 94%;
+             left: 4%;
+             top: 15%;
+
+        }
+        .device{
+            position:relative;
+            width: 47%;
+            height: 85px;
+            border-radius:8px;
+            background-color: rgba(255,255,255,0.95);
+            margin: 1%;
+            display: inline-block;
+        }
+        .dev_swith{
+            position: absolute;
+            width: 30px;
+            bottom: 7%;
+            right: 7%;
+            margin: 1%;
+            display: inline-block;
+
+        }
+        .dev_img{
+            position: absolute;
+            width: 55px;
+            bottom: 7%;
+            left: 7%;
+            margin: 1%;
+            display: inline-block;
+        }
+        .dev_title{
+            position:absolute;
+            font-size: 80%;
+            left: 7%;
+            top: 7%;
+            width:50%;
+
+        }
+        .dev_group{
+            position: absolute;
+
+            font-size: 60%;
+            max-width: 50%;
+            top: 7%;
+            right:7%;
+            margin: 1%;
+            border-radius:5px;
+            background-color:#e1e1e1;
+            display: inline-block;
+            padding: 5px;
+        }
+        .dev_status{
+            position: absolute;
+            font-size: 60%;
+            left: 7%;
+            top: 30%;
+        }
+        .offline{
+            color:#9b9b9b;
+        }
+        .online{
+            color:#1976D2;
+        }
+        .page_head{
+            height: 9%;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            background-color:#fff;
+            display: -webkit-box;
+            -webkit-box-orient: horizontal;
+            -webkit-box-pack: center;
+            -webkit-box-align: center;
+
+
+        }
+
+    </style>
+</head>
+<body ontouchstart="">
+    <div class="container" id="container"></div>
+    <script type="text/html" id="home">
+        <div id="home_page" class="page">
+            <div class="page__bd">
+                <ul>
+                    <li>
+                        <div class="weui-flex js_category" style="padding: 15px;">
+                            <p class="weui-flex__item">所有设备</p>
+                            <img src="{% static 'img/icon_nav_form.png' %}" style="width:30px;height: 30px">
+                        </div>
+                        <div class="page__category js_categoryInner">
+                            <div class="weui-cells page__category-content">
+                                <a class="weui-cell weui-cell_access js_item">
+                                    <div class="weui-cell__bd">
+                                        <p>所有设备</p>
+                                    </div>
+                                    <div class="weui-cell__ft"></div>
+                                </a>
+                                <a class="weui-cell weui-cell_access js_item">
+                                    <div class="weui-cell__bd">
+                                        <p>我的分享</p>
+                                    </div>
+                                    <div class="weui-cell__ft"></div>
+                                </a>
+                                <a class="weui-cell weui-cell_access js_item">
+                                    <div class="weui-cell__bd">
+                                        <p>分享给我的</p>
+                                    </div>
+                                    <div class="weui-cell__ft"></div>
+                                </a>
+                                <a class="weui-cell weui-cell_access js_item">
+                                    <div class="weui-cell__bd">
+                                        <p>管理分组</p>
+                                    </div>
+                                    <div class="weui-cell__ft"></div>
+                                </a>
+
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="device_list">
+{#                    <div class="device">#}
+{#                        <div class="dev_title">设备名称</div>#}
+{#                        <div class="dev_group">分组名称</div>#}
+{#                        <div class="dev_status">设备状态</div>#}
+{#                        <img class="dev_img" src="{% static 'img/switch_off.png' %}">#}
+{#                        <img class="dev_swith" src="{% static 'img/switch_on.png' %}">#}
+{#                    </div>#}
+
+
+
+                </div>
+            </div>
+            <div id="loadingToast" style="display: none;">
+                <div class="weui-mask_transparent"></div>
+                <div class="weui-toast">
+                    <i class="weui-loading weui-icon_toast"></i>
+                    <p class="weui-toast__content"></p>
+                </div>
+            </div>
+            <div class="js_dialog" id="iosDialog2" style="display: none">
+                <div class="weui-mask"></div>
+                <div class="weui-dialog">
+                    <div class="weui-dialog__bd"></div>
+                    <div class="weui-dialog__ft">
+                        <a class="weui-dialog__btn weui-dialog__btn_primary"></a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript">
+            $(function(){
+                var winH = $(window).height();
+                var categorySpace = 10;
+                $(document).tap(function(){
+                    $('li').removeClass('js_show')
+                });
+                $('.js_item').tap(function(){
+                    var self = $(this);
+                    $('.weui-flex__item').text(self.find('p').text());
+                    self.parents('li').removeClass('js_show');
+                });
+                $('.js_category').tap(function(e){
+                    e.stopPropagation();
+                    var $this = $(this),
+                        $inner = $this.next('.js_categoryInner'),
+                        $page = $this.parents('.page'),
+                        $parent = $(this).parent('li');
+                    var innerH = $inner.data('height');
+                    bear = $page;
+
+                    if(!innerH){
+                        $inner.css('height', 'auto');
+                        innerH = $inner.height();
+                        $inner.removeAttr('style');
+                        $inner.data('height', innerH);
+                    }
+
+                    if($parent.hasClass('js_show')){
+                        $parent.removeClass('js_show');
+                    }else{
+                        $parent.siblings().removeClass('js_show');
+
+                        $parent.addClass('js_show');
+
+                        if(this.offsetTop + this.offsetHeight + innerH > $page.scrollTop() + winH){
+                            var scrollTop = this.offsetTop + this.offsetHeight + innerH - winH + categorySpace;
+
+                            if(scrollTop > this.offsetTop){
+                                scrollTop = this.offsetTop - categorySpace;
+                            }
+
+                            $page.scrollTop(scrollTop);
+                        }
+                    }
+                });
+                var is_loading = false;
+                var devices_list = $('.device_list');
+                var $loadingToast = $('#loadingToast');
+                function get_devcies_info(){
+                    if (!is_loading){
+                        is_loading = true;
+                        $('.weui-toast__content').html('加载设备...');
+                        $loadingToast.fadeIn(100);
+                        $.ajax({
+                            type: "post",
+                            url:'{% url 'devices_info' %}',
+                            dataType: "json",
+                            data:{csrfmiddlewaretoken: '{{ csrf_token }}'},
+                            success: function(data){
+                                if (data.status === 0){
+                                    devices_list.empty();
+
+                                    $.each(data.data,function(i,item){
+                                        var group_name = '';
+                                        if (item[2] === 0){
+                                            group_name = '默认';
+
+                                        }
+                                        if (item[3] === 1){
+                                            devices_list.append(
+                                            '<div class="device" data-device_id="' + item[0] + '" >' +
+                                                '<div class="dev_title">' + item[1] + '</div>' +
+                                                '<div class="dev_group">'+ group_name +'</div>' +
+                                                '<div class="dev_status"></div>' +
+                                                '<img class="dev_img" src="{% static 'img/device.png' %}">' +
+                                                '<img class="dev_swith" src="{% static 'img/unlock.png' %}">' +
+                                            '</div>'
+                                            )
+                                        }
+                                        else if (item[3] === 2){
+                                            devices_list.append(
+                                            '<div class="device" data-device_id="' + item[0] + '" >' +
+                                                '<div class="dev_title">' + item[1] + '</div>' +
+                                                '<div class="dev_group">'+ group_name +'</div>' +
+                                                '<div class="dev_status"></div>' +
+                                                '<img class="dev_img" src="{% static 'img/device2.png' %}">' +
+                                                '<input id="dev_2_switch" class="weui-switch" type="checkbox">' +
+                                            '</div>'
+                                            )
+                                        }
+                                    });
+                                    update_dev_status()
+                                }
+                                $loadingToast.fadeOut(100);
+                                is_loading = false;
+                            },
+                            error: function(){
+                                setTimeout(function(){
+                                    is_loading = false;
+                                    $loadingToast.hide();
+                                    get_devcies_info();
+                                },500);
+                            }
+                        });
+                    }
+
+                }
+
+                function get_dev_status(dev_id_list){
+                    $.ajax({
+                        type: "post",
+                        url:'{% url 'starry_sky_box_api' %}',
+                        dataType: "json",
+                        data:{api_name:'batch_query_dev_status',dev_id_list:JSON.stringify(dev_id_list),csrfmiddlewaretoken: '{{ csrf_token }}'},
+                        success: function(data){
+                            $.each(data.data,function (i,item) {
+                                var status = $("[data-device_id='" + item.id +"']").children('div.dev_status');
+                                if (item.online){
+                                    status.removeClass('offline');
+                                    status.addClass('online');
+                                    status.html('在线');
+
+                                }
+                                else {
+                                    status.removeClass('online');
+                                    status.addClass('offline');
+                                    status.html('离线');
+                                }
+                            });
+                        },
+                        error: function(){
+
+                        }
+                    });
+                }
+                function update_dev_status() {
+                    var dev_id_list = [];
+                    $('.device').each(function () {
+                        dev_id_list.push($(this).data('device_id').toString());
+                    });
+                    if (dev_id_list.length >= 1){
+                        get_dev_status(dev_id_list)
+                    }
+
+                }
+                get_devcies_info();
+
+                var interThread = setInterval(function () {
+                    update_dev_status()
+                    }
+                , 15000);
+                var interThread2 = setInterval(function () {
+                    if ($('.device').length === 0) {
+                        clearInterval(interThread);
+                        clearInterval(interThread2);
+                    }
+                }, 1000);
+                function btn_click(device_id,btn_num){
+                    if (!is_loading){
+                        is_loading = true;
+                        $.ajax({
+                            type: "post",
+                            url:'{% url 'starry_sky_box_api' %}',
+                            dataType: "json",
+                            data:{api_name:'send_cmd',device_id:device_id,btn_num:btn_num,csrfmiddlewaretoken: '{{ csrf_token }}'},
+                            success: function(data){
+                                if (data.status === 0){
+
+                                    setTimeout(function () {
+                                        $loadingToast.fadeOut(100);
+                                    }, 3000);
+
+
+                                }
+                                else if (data.status === 10){
+                                    $loadingToast.fadeOut(100);
+                                    $('.weui-dialog__bd').html('设备已离线，请等待设备上线后再试。');
+                                    $('.weui-dialog__btn').html('知道了');
+                                    $('#iosDialog2').fadeIn(100);
+                                    update_dev_status()
+
+                                }
+                                else {
+                                    console.log('faild')
+                                }
+                                $('.dev_swith').removeAttr('disabled');
+                                is_loading = false;
+                            },
+                            error: function(){
+                                setTimeout(function(){
+                                    is_loading = false;
+                                    btn_click(device_id,btn_num);
+                                },500);
+                            }
+                        });
+                    }
+
+                }
+
+
+                devices_list.on('click','.dev_swith',function () {
+                    var self = $(this);
+                    self.attr('disabled','disabled');
+                    $('.weui-toast__content').html('正在解锁...');
+                    $loadingToast.fadeIn(100);
+                    btn_click(self.parent().data('device_id').toString(),1);
+
+                });
+                devices_list.on('click','#dev_2_swith',function () {
+                    var self = $(this);
+                    self.attr('disabled','disabled');
+                    $('.weui-toast__content').html('正在解锁...');
+                    $loadingToast.fadeIn(100);
+                    btn_click(self.parent().data('device_id').toString(),1);
+
+                });
+                $('.weui-dialog__btn').on('click',function () {
+                    $('#iosDialog2').fadeOut(100)
+                })
+            });
+        </script>
+    </script>
+    <script type="text/html" id="add_device">
+        <div class="page button">
+            <div class="page__hd">
+                <h1 class="page__title">添加设备</h1>
+                <p class="page__desc">输入产品序列号添加设备</p>
+            </div>
+            <div class="page__bd page__bd_spacing">
+                <div class="weui-search-bar" id="searchBar">
+                    <form class="weui-search-bar__form">
+                        <div class="weui-search-bar__box">
+
+                            <input type="search" class="weui-search-bar__input" id="searchInput" placeholder="SN码" required="">
+                            <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+                        </div>
+                        <label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+
+                            <span>输入设备序列号(SN码)</span>
+                        </label>
+                    </form>
+                    <a class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+                </div>
+                <div id="tips" style="display:none;color: #ff0000" class="weui-cells__tips" ></div>
+                <div class="button-sp-area">
+                    <a id="add_btn" class="weui-btn weui-btn_plain-primary">添加</a>
+                </div>
+            </div>
+            <div class="js_dialog" id="iosDialog2" style="display: none">
+                <div class="weui-mask"></div>
+                <div class="weui-dialog">
+                    <div class="weui-dialog__bd"></div>
+                    <div class="weui-dialog__ft">
+                        <a class="weui-dialog__btn weui-dialog__btn_primary"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            $(function(){
+                var $searchBar = $('#searchBar'),
+                    $searchResult = $('#searchResult'),
+                    $searchText = $('#searchText'),
+                    $searchInput = $('#searchInput'),
+                    $searchClear = $('#searchClear'),
+                    $searchCancel = $('#searchCancel');
+
+                function hideSearchResult(){
+                    $searchResult.hide();
+                    $searchInput.val('');
+                }
+                function cancelSearch(){
+                    hideSearchResult();
+                    $searchBar.removeClass('weui-search-bar_focusing');
+                    $searchText.show();
+                }
+
+                $searchText.on('click', function(){
+                    $searchBar.addClass('weui-search-bar_focusing');
+                    $searchInput.focus();
+                });
+                $searchInput
+                    .on('blur', function () {
+                        if(!this.value.length) cancelSearch();
+                    })
+                    .on('input', function(){
+                        if(this.value.length) {
+                            $searchResult.show();
+                        } else {
+                            $searchResult.hide();
+                        }
+                    })
+                ;
+                $searchClear.on('click', function(){
+                    hideSearchResult();
+                    $searchInput.focus();
+                });
+                $searchCancel.on('click', function(){
+                    cancelSearch();
+                    $searchInput.blur();
+                });
+                var is_loading = false;
+                var db = $('.weui-dialog__btn');
+                var dialog = $('#iosDialog2');
+                function bind_device(){
+                    if (!is_loading){
+                        is_loading = true;
+                        $.ajax({
+                            type: "post",
+                            url:'{% url 'starry_sky_box_api' %}',
+                            dataType: "json",
+                            data:{api_name:'regist_dev',sn:$('#searchInput').val(),csrfmiddlewaretoken: '{{ csrf_token }}'},
+                            success: function(data){
+                                if (data.status === 0){
+                                    $('.weui-dialog__bd').html('设备添加成功!!');
+                                    db.attr('href','#home');
+                                    db.html('确定');
+                                    dialog.fadeIn(100);
+
+                                }
+                                else {
+                                    $('.weui-dialog__bd').html('设备添加失败!!');
+                                    db.removeAttr('href');
+                                    db.html('确定');
+                                    dialog.fadeIn(100);
+                                }
+
+                                is_loading = false;
+                            },
+                            error: function(){
+                                setTimeout(function(){
+                                    is_loading = false;
+                                    bind_device();
+                                },500);
+                            }
+                        });
+                    }
+
+                }
+                db.tap(function () {
+                    dialog.fadeOut(100);
+                    window.pageManager.go('home')
+                });
+                $('#add_btn').tap(function () {
+                    var sn = $('#searchInput').val();
+                    if (sn === ""){
+                        var tips = $('#tips');
+                        tips.html('设备序列号不能为空！！');
+                        tips.show();
+                        return;
+                    }
+                    bind_device();
+
+                })
+            });
+        </script>
+    </script>
+    <script type="text/html" id="user_info">
+        <div class="page">
+            <div class="page_head">
+                我的
+            </div>
+
+            <div class="weui-cells">
+                <div class="weui-cell">
+                    <div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+                        <img src="images/pic_160.png" style="width: 50px;display: block">
+                        <span class="weui-badge" style="position: absolute;top: -.4em;right: -.4em;">8</span>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <p>联系人名称</p>
+                        <p style="font-size: 13px;color: #888888;">摘要信息</p>
+                    </div>
+                </div>
+                <div class="weui-cell weui-cell_access">
+                    <div class="weui-cell__hd"></div>
+                    <div class="weui-cell__bd">
+                        <span style="vertical-align: middle">帮助与反馈</span>
+
+                    </div>
+                    <div class="weui-cell__ft"></div>
+                </div>
+                <div class="weui-cell weui-cell_access">
+                    <div class="weui-cell__hd"></div>
+                    <div class="weui-cell__bd">
+                        <span style="vertical-align: middle">常见问题</span>
+
+                    </div>
+                    <div class="weui-cell__ft"></div>
+                </div>
+                <div class="weui-cell weui-cell_access">
+                    <div class="weui-cell__hd"></div>
+                    <div class="weui-cell__bd">
+                        <span style="vertical-align: middle">关于星空物联</span>
+
+                    </div>
+                    <div class="weui-cell__ft"></div>
+                </div>
+                <div class="weui-cell weui-cell_access">
+                    <div class="weui-cell__hd"></div>
+                    <div class="weui-cell__bd">
+                        <span style="vertical-align: middle">设置</span>
+
+                    </div>
+                    <div class="weui-cell__ft"></div>
+                </div>
+                    <div id="logout" class="weui-cell weui-cell_access">
+                    <div class="weui-cell__hd"></div>
+                    <div class="weui-cell__bd">
+                        <span style="vertical-align: middle">退出登录</span>
+                    </div>
+                    <div class="weui-cell__ft"></div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            $(function () {
+                $('#logout').tap(function () {
+                    window.location.replace('{% url 'logout' %}')
+                })
+            });
+        </script>
+    </script>
+    <div class="weui-tabbar">
+        <a href="#home" class="weui-tabbar__item">
+            <img src="{% static 'img/home.png' %}" alt="" class="weui-tabbar__icon">
+            <p class="weui-tabbar__label">设备</p>
+        </a>
+        <a href="#add_device" class="weui-tabbar__item">
+            <img src="{% static 'img/icon_tabbar.png' %}" alt="" class="weui-tabbar__icon">
+            <p class="weui-tabbar__label">添加设备</p>
+        </a>
+        <a href="#user_info" class="weui-tabbar__item">
+            <img src="{% static 'img/my.png' %}" alt="" class="weui-tabbar__icon">
+            <p class="weui-tabbar__label">用户中心</p>
+        </a>
+    </div>
+    <script src="{% static 'js/zepto.min.js' %}"></script>
+    <script src="{% static 'js/touch.js' %}"></script>
+    <script src="{% static 'js/example.js' %}"></script>
+    <script src="{% static 'js/user.js' %}"></script>
+</body>
+</html>
