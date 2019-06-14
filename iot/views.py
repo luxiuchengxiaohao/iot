@@ -10,53 +10,28 @@ from iot.products import starry_sky_box,switch
 
 def alibaba_aliqin_fc_sms_num_send(code_arg,rec_num_arg):
     while True:
-        appsecret = "43d5d5a0afaced236ea18b8fc11d4ff5"
-        sms_type = 'normal'
-        sms_free_sign_name = '晶炫科技'
-        rec_num = rec_num_arg
-        sms_param = '{"code":"' + code_arg + '","product":"星空物联"}'
-        sms_template_code = 'SMS_48975023'
+        appsecret = 暂时去掉
         # 以下参数名称已按ASCII码表顺序排序
-        app_key = "24567764"
-        format = "json"
-        method = "alibaba.aliqin.fc.sms.num.send"
-        sign_method = "md5"
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        # timestamp = "2017-05-04 17:33:20"
-        v = "2.0"
-        parame = {'app_key': app_key,
-                  'format': format,
-                  'method': method,
-                  'sms_type' : sms_type,
-                  'sms_free_sign_name' : sms_free_sign_name,
-                  'rec_num' : rec_num,
-                  'sms_param' : sms_param,
-                  'sms_template_code' :sms_template_code,
-                  'sign_method': sign_method,
-                  'timestamp': timestamp,
-                  'v': v}
+        parame = {'app_key': "24567764",
+                  'format': "json",
+                  'method': "alibaba.aliqin.fc.sms.num.send",
+                  'sms_type': 'normal',
+                  'sms_free_sign_name': 暂时去掉,
+                  'rec_num': rec_num_arg,
+                  'sms_param': '{"code":"' + code_arg + '","product":"星空物联"}',
+                  'sms_template_code': 'SMS_48975023',
+                  'sign_method': "md5",
+                  'timestamp': time.strftime("%Y-%m-%d %H:%M:%S"),
+                  'v': "2.0"}
         # 按照a-z字符顺序排列并拼接字符串
         sign = ''
         for k in sorted(parame.keys()):
-            sign += k + str(parame[k])
+            sign += k + parame[k]
         m = hashlib.md5()
         m.update((appsecret + sign + appsecret).encode('utf-8'))
-        sign = m.hexdigest().upper()
-        apiurl = "http://gw.api.taobao.com/router/rest"
-        data = {'app_key': app_key,
-                  'format': format,
-                  'method': method,
-                  'sms_type' : sms_type,
-                  'sms_free_sign_name' : sms_free_sign_name,
-                  'rec_num' : rec_num,
-                  'sms_param' : sms_param,
-                  'sms_template_code' :sms_template_code,
-                  'sign_method': sign_method,
-                  'timestamp': timestamp,
-                'v': v,
-                'sign': sign}
-
-        data = urllib.parse.urlencode(data).encode('utf-8')
+        parame['sign'] = m.hexdigest().upper()
+        apiurl = 暂时去掉
+        data = urllib.parse.urlencode(parame).encode('utf-8')
         req = urllib.request.Request(apiurl, data)
         try:
             response = urllib.request.urlopen(req)
@@ -246,7 +221,7 @@ def view_starry_sky_box_api(request):
                 #     return HttpResponse(json.dumps({'status': 2, 'message': ['sign error!']}),content_type="application/json")
                 if request.POST['api_name']:
                     api_name = request.POST['api_name']
-                    ssb = starry_sky_box('TfLkfaUN=E9zgDSHk3mr9R7h760=', 'ZlyJ1u5JuGmukdXi')
+                    ssb = starry_sky_box(暂时去掉敏感信息, 暂时去掉敏感信息)
                     if api_name == 'regist_dev':
                         devices_filter = devices.objects.filter(sn_code=str(request.POST['sn']))
                         if len(devices_filter) == 0:
@@ -345,7 +320,7 @@ def view_switch_device_api(request):
             devices_filter = devices.objects.filter(sn_code=str(sn_code))
             if len(devices_filter) == 1:
                 if not devices_filter[0].key:
-                    s = switch('3yf8gBZPvN=UMFvHAIyQxM6mIVk=', '0G5WG6hSd9nS6xsd')
+                    s = switch(暂时去掉敏感信息, 暂时去掉敏感信息)
                     res = s.regist_dev(sn_code)
                     if res['status'] == 0:
                         devices_filter[0].key = res['data']['data']['key']
